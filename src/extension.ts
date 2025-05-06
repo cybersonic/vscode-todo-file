@@ -3,12 +3,9 @@
 import * as vscode from 'vscode';
 import { parseTodoText } from './parser';
 import {
-	TODO_UNCHECKED_PATTERN, 
+	TODO_UNCHECKED_PATTERN,
 	COMMENTED_TODO_PATTERN,
 	TODO_CHECKED_PATTERN,
-	PRIORITY_HIGH_PATTERN,
-	PRIORITY_MED_PATTERN,
-	PRIORITY_LOW_PATTERN, 
 	ANY_PRIORITY_MARKER,
 	isTodoLine, toggleTodoState, getPriorityLevel
 } from './todo-patterns';
@@ -24,7 +21,7 @@ import {
 
 import { startPomodoroTimer } from './timerManager';
 
-const TODO_FILE_LANG = "todo"
+const TODO_FILE_LANG = "todo";
 export function activate(context: vscode.ExtensionContext) {
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
@@ -53,7 +50,9 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		vscode.commands.registerCommand('todo.todoSmartEnter', async () => {
 			const editor = vscode.window.activeTextEditor;
-			if (!editor || editor.document.languageId !== TODO_FILE_LANG) return;
+			if (!editor || editor.document.languageId !== TODO_FILE_LANG) {
+				return;
+			}
 
 			const pos = editor.selection.active;
 			const line = editor.document.lineAt(pos.line);
@@ -81,7 +80,9 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		vscode.commands.registerCommand('todo.markTodoDone', async () => {
 			const editor = vscode.window.activeTextEditor;
-			if (!editor || editor.document.languageId !== TODO_FILE_LANG) return;
+			if (!editor || editor.document.languageId !== TODO_FILE_LANG) {
+				return;
+			}
 
 			const lineNumber = editor.selection.active.line;
 			const line = editor.document.lineAt(lineNumber);
@@ -105,7 +106,9 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		vscode.commands.registerCommand('todo.toggleTodoDone', async () => {
 			const editor = vscode.window.activeTextEditor;
-			if (!editor || editor.document.languageId !== TODO_FILE_LANG) return;
+			if (!editor || editor.document.languageId !== TODO_FILE_LANG) {
+				return;
+			}
 
 			const lineNumber = editor.selection.active.line;
 			const line = editor.document.lineAt(lineNumber);
@@ -131,13 +134,15 @@ export function activate(context: vscode.ExtensionContext) {
 
 
 	context.subscriptions.push(
-	  vscode.commands.registerCommand('todo.startPomodoroTimer', () => {
-		const editor = vscode.window.activeTextEditor;
-		if (!editor || editor.document.languageId !== 'todo') return;
-	
-		const line = editor.selection.active.line;
-		startPomodoroTimer(editor, line, 25); // 25-minute default
-	  })
+		vscode.commands.registerCommand('todo.startPomodoroTimer', () => {
+			const editor = vscode.window.activeTextEditor;
+			if (!editor || editor.document.languageId !== 'todo') {
+				return;
+			}
+
+			const line = editor.selection.active.line;
+			startPomodoroTimer(editor, line, 25); // 25-minute default
+		})
 	);
 
 	// context.subscriptions.push(disposable);
@@ -167,7 +172,7 @@ function updateDecorations(editor: vscode.TextEditor) {
 		} else if (TODO_UNCHECKED_PATTERN.test(trimmed)) {
 			todoRanges.push({ range });
 
-			if(ANY_PRIORITY_MARKER.test(trimmed)) {
+			if (ANY_PRIORITY_MARKER.test(trimmed)) {
 				const priority = getPriorityLevel(trimmed);
 				if (priority === 'high') {
 					redDots.push({ range });
@@ -179,7 +184,7 @@ function updateDecorations(editor: vscode.TextEditor) {
 					greenDots.push({ range });
 				}
 			}
-			
+
 
 		} else if (TODO_CHECKED_PATTERN.test(trimmed)) {
 			doneRanges.push({ range });
