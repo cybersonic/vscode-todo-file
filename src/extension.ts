@@ -6,6 +6,7 @@ import {
 	TODO_UNCHECKED_PATTERN,
 	COMMENTED_TODO_PATTERN,
 	TODO_CHECKED_PATTERN,
+	DATE_HEADER_PATTERN,
 	ANY_PRIORITY_MARKER,
 	isTodoLine, toggleTodoState, getPriorityLevel
 } from './todo-patterns';
@@ -16,10 +17,13 @@ import {
 	commentedDecoration,
 	redDotDecoration,
 	orangeDotDecoration,
-	greenDotDecoration
+	greenDotDecoration,
+	dateHeaderDecoration
 } from './decorations';
 
-import { startPomodoroTimer } from './timerManager';
+import { startTimer, stopTimer } from './timerManager';
+import { moveUnfinishedTasksToToday } from './moveUnfinishedTasksToToday';
+// import { format } from 'date-fns';
 
 const TODO_FILE_LANG = "todo";
 export function activate(context: vscode.ExtensionContext) {
@@ -134,18 +138,83 @@ export function activate(context: vscode.ExtensionContext) {
 
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand('todo.startPomodoroTimer', () => {
+		vscode.commands.registerCommand('todo.startTimer', () => {
 			const editor = vscode.window.activeTextEditor;
 			if (!editor || editor.document.languageId !== 'todo') {
 				return;
 			}
 
 			const line = editor.selection.active.line;
-			startPomodoroTimer(editor, line, 25); // 25-minute default
+			startTimer(editor, line, 25); // 25-minute default
 		})
 	);
 
+	context.subscriptions.push(
+		vscode.commands.registerCommand('todo.stopTimer', () => {
+			stopTimer();
+		})
+	);
+
+	context.subscriptions.push(
+		vscode.commands.registerCommand('todo.insertTodayDate', insertTodayDateHeader)
+	);
+
+	context.subscriptions.push(
+		vscode.commands.registerCommand('todo.moveUnfinishedToToday', moveUnfinishedTasksToToday )
+	);
+
+	vscode.languages.registerFoldingRangeProvider('todo', {
+		provideFoldingRanges(document, context, token) {
+			const ranges: vscode.FoldingRange[] = [];
+			const lines = document.getText().split('\n');
+			let currentStart: number | null = null;
+
+			for (let i = 0; i < lines.length; i++) {
+				const line = lines[i];
+				// TODO: Move this to our constants
+				if (/^##\s+.+/.test(line)) {
+					if (currentStart !== null) {
+						ranges.push(new vscode.FoldingRange(currentStart, i - 1));
+					}
+					currentStart = i;
+				}
+			}
+
+			if (currentStart !== null && currentStart < lines.length - 1) {
+				ranges.push(new vscode.FoldingRange(currentStart, lines.length - 1));
+			}
+
+			return ranges;
+		}
+	});
+
 	// context.subscriptions.push(disposable);
+}
+export function insertTodayDateHeader() {
+	const editor = vscode.window.activeTextEditor;
+	if (!editor) {return;}
+
+	const config = vscode.workspace.getConfiguration('todo');
+	const formatString = config.get<string>('dateFormat', 'yyyy-MM-dd');
+	const today = new Date();
+
+	// If the format is exactly 'yyyy-MM-dd', format the date manually.
+	let formatted: string;
+	if (formatString === 'yyyy-MM-dd') {
+		const year = today.getFullYear();
+		const month = String(today.getMonth() + 1).padStart(2, '0');
+		const day = String(today.getDate()).padStart(2, '0');
+		formatted = `${year}-${month}-${day}`;
+	} else {
+		// Fallback: use the first 10 characters of ISO string (yyyy-MM-dd)
+		formatted = today.toISOString().slice(0, 10);
+	}
+
+	const dateHeader = `## ${formatted}`;
+	const position = editor.selection.active;
+	editor.edit(editBuilder => {
+		editBuilder.insert(position, dateHeader + '\n');
+	});
 }
 
 function updateDecorations(editor: vscode.TextEditor) {
@@ -160,12 +229,18 @@ function updateDecorations(editor: vscode.TextEditor) {
 	const doneRanges: vscode.DecorationOptions[] = [];
 	const todoRanges: vscode.DecorationOptions[] = [];
 	const commentedRanges: vscode.DecorationOptions[] = [];
+	const dateHeaders: vscode.DecorationOptions[] = [];
+
+
+
 
 	lines.forEach((lineText, lineNum) => {
 		const trimmed = lineText.trimStart();
 
 		const range = editor.document.lineAt(lineNum).range;
-
+		if (DATE_HEADER_PATTERN.test(trimmed)) {
+			dateHeaders.push({ range });
+		}
 		// Commented out todos (e.g., // - [ ] or # [x])
 		if (COMMENTED_TODO_PATTERN.test(trimmed)) {
 			commentedRanges.push({ range });
@@ -193,6 +268,8 @@ function updateDecorations(editor: vscode.TextEditor) {
 
 
 	});
+
+	editor.setDecorations(dateHeaderDecoration, dateHeaders);
 
 	editor.setDecorations(doneDecoration, doneRanges);
 	editor.setDecorations(todoDecoration, todoRanges);

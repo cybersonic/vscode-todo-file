@@ -6,6 +6,7 @@ export const COMMENTED_TODO_PATTERN: RegExp = /^\s*(\/\/|#)\s*[^\w\d]*\[(\s|x)\]
 export const PRIORITY_HIGH_PATTERN = /^[^\w\d]*\[\s\]\s+!!!/;  // High priority
 export const PRIORITY_MED_PATTERN = /^[^\w\d]*\[\s\]\s+!!/;   // Medium
 export const PRIORITY_LOW_PATTERN = /^[^\w\d]*\[\s\]\s+!/;    // Low
+export const DATE_HEADER_PATTERN = /^##\s+.+/;
 
 // Alternate: if you ever want just standalone detection (not tied to todo)
 export const ANY_PRIORITY_MARKER = /(?<!\!)\!{1,3}(?!\!)/;

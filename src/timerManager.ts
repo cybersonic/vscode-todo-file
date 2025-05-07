@@ -9,8 +9,8 @@ interface ActiveTimer {
 let activeTimer: ActiveTimer | null = null;
 let timerDecoration: vscode.TextEditorDecorationType;
 
-export function startPomodoroTimer(editor: vscode.TextEditor, line: number, durationMinutes = 25) {
-  stopPomodoroTimer(); // Only one timer at a time
+export function startTimer(editor: vscode.TextEditor, line: number, durationMinutes = 25) {
+  stopTimer(); // Only one timer at a time
 
   const endTime = Date.now() + durationMinutes * 60 * 1000;
   const range = editor.document.lineAt(line).range;
@@ -26,7 +26,7 @@ export function startPomodoroTimer(editor: vscode.TextEditor, line: number, dura
   const update = () => {
     const remainingMs = endTime - Date.now();
     if (remainingMs <= 0) {
-      stopPomodoroTimer();
+      stopTimer();
       
       vscode.window.showInformationMessage('⏱️ Pomodoro complete!');
       return;
@@ -52,7 +52,7 @@ export function startPomodoroTimer(editor: vscode.TextEditor, line: number, dura
   activeTimer = { line, endTime, interval };
 }
 
-export function stopPomodoroTimer() {
+export function stopTimer() {
   if (activeTimer) {
     clearInterval(activeTimer.interval);
     activeTimer = null;
