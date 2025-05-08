@@ -1,6 +1,7 @@
 # 📝 VSCode Todo Extension
 
-A clean, keyboard-first VSCode extension for managing plain-text daily todos — ideal for developers who prefer lightweight task tracking right inside their editor.
+A clean, keyboard-first VSCode extension for managing plain-text daily todos file — ideal for developers who prefer lightweight task tracking right inside their editor.
+Use it to keep your tasks organized, prioritized, and easily accessible without the overhead of complex project management tools.
 
 ---
 
@@ -10,11 +11,11 @@ A clean, keyboard-first VSCode extension for managing plain-text daily todos —
 - Automatically detects todo items:
   - `[ ]` for incomplete tasks
   - `[x]` for completed tasks
-- Supports numeric completions: `[1]`, `[2]`, etc. to indicate repetitions or sessions
 - Multiple bullet styles supported: `-`, `*`, `•`, etc.
 - Strikethrough styling for `[x]` completed items
 - Bold styling for active `[ ]` tasks
 - Faded/italic styling for commented-out tasks (`// - [ ]`, `# - [ ]`)
+- Collapsible sections for better organization
 
 ---
 
@@ -44,8 +45,11 @@ A clean, keyboard-first VSCode extension for managing plain-text daily todos —
   - Toggle Done/Undone
   - Move Incomplete Tasks to Today
   - Insert Today's Date
+- Set your default todo file in settings and open it with a single command ("Open Todo File").
+- Use `Ctrl+Shift+P` to open the Command Palette and search for "Todo" to see all available commands.
 
 ---
+
 
 ## 📄 Example Format
 
@@ -54,22 +58,22 @@ A clean, keyboard-first VSCode extension for managing plain-text daily todos —
 - [ ] !!! Critical issue     🔴
 - [ ] !! Send weekly report  🟠
 - [x] Write documentation     (completed)
-- [ ] [2] Draft revisions      (tracked progress)
 // - [ ] Cancelled feature     (commented out)
 ```
 
 ## 🛠 File Association
 This extension activates on files ending with .todo.txt. Just create a file like myplan.todo.txt and you're ready to go.
 
-## 💡 Coming Soon (?)
-Sort or group tasks by priority
-
-Completion stats
-
-Timeline or visual calendar view
-
 ## 🙌 Contributing
 Open to issues, ideas, and PRs. Feel free to improve or extend this extension.
+
+
+## 💡 Coming Soon (?)
+### ⏲️ Countdown Timers
+- Start a countdown timer for any task
+- Right click on a task and select "Start Countdown Timer"
+- The default countdown duration is 25 minutes, but you can customize it in the settings.
+- The timer will show a notification when the time is up.
 
 ## 📘 License
 MIT — simple and open.
