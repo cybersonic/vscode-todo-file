@@ -45,26 +45,30 @@ export async function moveUnfinishedTasksToToday() {
   }
 
   await editor.edit((editBuilder) => {
-    // Remove lines in reverse to preserve correct indices
+    // Remove old tasks in reverse
     indicesToRemove.reverse().forEach((index) => {
       const range = doc.lineAt(index).rangeIncludingLineBreak;
       editBuilder.delete(range);
     });
-
-    // Insert header if not found
-    if (todayIndex === -1) {
-      const insertAt = doc.lineCount;
-      editBuilder.insert(
-        new vscode.Position(insertAt, 0),
-        `\n${todayHeader}\n`
-      );
-      todayIndex = insertAt + 1;
+  
+    const firstLine = doc.lineAt(0).text.trim();
+    const headerExists = firstLine === todayHeader;
+  
+    if (!headerExists) {
+      // Insert new header and tasks at the top
+      const block = `${todayHeader}\n${linesToMove.join("\n")}\n\n`;
+      editBuilder.insert(new vscode.Position(0, 0), block);
+    } else {
+      // Header exists — insert tasks after it
+      let insertLine = 1;
+      while (insertLine < lines.length && lines[insertLine].trim().startsWith('-')) {
+        insertLine++;
+      }
+      const insertPos = new vscode.Position(insertLine, 0);
+      editBuilder.insert(insertPos, linesToMove.join("\n") + "\n");
     }
-
-    // Insert tasks under today
-    const insertPos = new vscode.Position(todayIndex + 1, 0);
-    editBuilder.insert(insertPos, linesToMove.join("\n") + "\n");
   });
+  
 
   // Collapse all other date sections except today
   const editorAfterEdit = vscode.window.activeTextEditor;

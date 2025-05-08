@@ -2,6 +2,11 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { parseTodoText } from './parser';
+import {existsSync } from 'fs';
+import * as path from 'path';
+import * as os from 'os';
+
+
 import {
 	TODO_UNCHECKED_PATTERN,
 	COMMENTED_TODO_PATTERN,
@@ -23,6 +28,7 @@ import {
 
 import { startTimer, stopTimer } from './timerManager';
 import { moveUnfinishedTasksToToday } from './moveUnfinishedTasksToToday';
+import { fstat } from 'fs';
 // import { format } from 'date-fns';
 
 const TODO_FILE_LANG = "todo";
@@ -104,6 +110,8 @@ export function activate(context: vscode.ExtensionContext) {
 			await editor.edit(editBuilder => {
 				editBuilder.replace(line.range, updated);
 			});
+
+			
 		})
 	);
 
@@ -131,6 +139,10 @@ export function activate(context: vscode.ExtensionContext) {
 			await editor.edit(editBuilder => {
 				editBuilder.replace(line.range, updatedLine);
 			});
+			const saveFile = vscode.workspace.getConfiguration('todo').get('saveOnUpdate', false);
+			if(saveFile) {
+				await editor.document.save();
+			}
 		})
 	);
 
@@ -143,9 +155,9 @@ export function activate(context: vscode.ExtensionContext) {
 			if (!editor || editor.document.languageId !== 'todo') {
 				return;
 			}
-
+			const timerTime = vscode.workspace.getConfiguration('todo').get('defaultTimer', 25);
 			const line = editor.selection.active.line;
-			startTimer(editor, line, 25); // 25-minute default
+			startTimer(editor, line, timerTime); 
 		})
 	);
 
@@ -161,6 +173,10 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand('todo.moveUnfinishedToToday', moveUnfinishedTasksToToday )
+	);
+
+	context.subscriptions.push(
+		vscode.commands.registerCommand('todo.openTodoFile', openTodoFile)
 	);
 
 	vscode.languages.registerFoldingRangeProvider('todo', {
@@ -190,7 +206,33 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// context.subscriptions.push(disposable);
 }
-export function insertTodayDateHeader() {
+
+function expandHome(filepath: string): string {
+	if (filepath.startsWith('~')) {
+	  return path.join(os.homedir(), filepath.slice(1));
+	}
+	return filepath;
+  }
+
+
+export function openTodoFile() {
+	
+	const todoFilePath = vscode.workspace.getConfiguration('todo').get<string>('defaultTodoFileLocation', "~/my.todo.txt");
+	const expandedPath = expandHome(todoFilePath);
+	const fileExists = existsSync(expandedPath);
+	if (fileExists) {
+		
+	  vscode.workspace.openTextDocument(expandedPath).then(doc => {
+		vscode.window.showTextDocument(doc);
+	  });
+	} else {
+	  vscode.window.showErrorMessage('Todo file path is not set in settings.');
+	}
+}
+
+  
+  
+export async function insertTodayDateHeader() {
 	const editor = vscode.window.activeTextEditor;
 	if (!editor) {return;}
 
@@ -215,6 +257,10 @@ export function insertTodayDateHeader() {
 	editor.edit(editBuilder => {
 		editBuilder.insert(position, dateHeader + '\n');
 	});
+	const saveFile = vscode.workspace.getConfiguration('todo').get('saveOnUpdate', false);
+	if(saveFile) {
+		await editor.document.save();
+	}
 }
 
 function updateDecorations(editor: vscode.TextEditor) {

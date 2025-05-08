@@ -29,6 +29,21 @@
           "type": "string",
           "default": "yyyy-MM-dd",
           "description": "Format string for inserted date headers. Uses date-fns format (e.g., yyyy-MM-dd, dd/MM/yyyy)."
+        },
+        "todo.saveOnUpdate": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically save the file after updating a task."
+        },
+        "todo.defaultTimer": {
+          "type": "number",
+          "default": 25,
+          "description": "Default countdown timer duration in minutes."
+        },
+        "todo.defaultTodoFileLocation": {
+          "type": "string",
+          "default": "~/my.todo.txt",
+          "description": "The default location of the todo file. This is used to open it when the extension is activated. It can be a relative or absolute path."
         }
       }
     },
@@ -105,7 +120,13 @@
         "command": "todo.moveUnfinishedToToday",
         "title": "Move Unfinished Tasks to Today",
         "category": "Todo"
+      },
+      {
+        "command": "todo.openTodoFile",
+        "title": "Open Todo File",
+        "category": "Todo"
       }
+
     ]
   },
   "jest": {

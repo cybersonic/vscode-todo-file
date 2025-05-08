@@ -61,3 +61,4 @@ export function stopTimer() {
     timerDecoration.dispose();
   }
 }
+
