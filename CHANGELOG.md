@@ -2,6 +2,8 @@
 
 All notable changes to the "vscode-todo-file" extension will be documented in this file.
 
+## [0.1.00] 
+ - Added Jira Link support
 ## [Unreleased]
 - Initial release
 - Added ability to mark tasks as done 

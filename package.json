@@ -4,7 +4,7 @@
   "description": "A simple TODO file extension for VSCode. It allows you to manage your TODOs in a text file format, with features like date insertion, task timing, and more.",
   "publisher": "markdrew",
   "license": "MIT",
-  "version": "0.0.21",
+  "version": "0.1.0",
   "engines": {
     "vscode": "^1.99.0"
   },
@@ -44,6 +44,11 @@
           "type": "string",
           "default": "~/my.todo.txt",
           "description": "The default location of the todo file. This is used to open it when the extension is activated. It can be a relative or absolute path."
+        },
+        "todo.jiraBaseUrl": {
+          "type": "string",
+          "default": "",
+          "description": "Base URL for linking to JIRA tickets (e.g. https://jira.example.com/browse)"
         }
       }
     },
@@ -149,7 +154,8 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm version patch --no-git-tag-version && npm run lint && npm run compile && npm run package",
+    "patch": "npm version patch",
+    "vscode:prepublish": "npm run lint && npm run compile && npm run package",
     "vscode:publish": "vsce publish",
     "vscode:package": "vsce package",
     "publish": "npm run vscode:publish",
