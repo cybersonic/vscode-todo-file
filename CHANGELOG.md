@@ -2,6 +2,9 @@
 
 All notable changes to the "vscode-todo-file" extension will be documented in this file.
 
+## [0.1.1] 
+ - Fixed the timer not persisting when you browse away from the todo file
+
 ## [0.1.00] 
  - Added Jira Link support
 ## [Unreleased]
