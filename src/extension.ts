@@ -27,7 +27,7 @@ import {
   dateHeaderDecoration,
 } from "./decorations";
 
-import { startTimer, stopTimer } from "./timerManager";
+import { startTimer, stopTimer, setExtensionContext, restoreTimer, handleEditorChange } from "./timerManager";
 import { moveUnfinishedTasksToToday } from "./moveUnfinishedTasksToToday";
 import { fstat } from "fs";
 // import { format } from 'date-fns';
@@ -38,11 +38,23 @@ export function activate(context: vscode.ExtensionContext) {
   // This line of code will only be executed once when your extension is activated
   console.log(`[✅ ${TODO_FILE_LANG}] Started`);
 
+
+  // Set the extension context for the timer manager
+  setExtensionContext(context);
+
+  // Restore any active timer from previous session
+  restoreTimer();
+
+
+
   vscode.window.onDidChangeActiveTextEditor(
-    (editor) => {
+   (editor) => {
       if (editor && editor.document.languageId === TODO_FILE_LANG) {
         updateDecorations(editor);
       }
+      
+      // Handle timer decoration updates when switching editors
+      handleEditorChange(editor);
     },
     null,
     context.subscriptions
