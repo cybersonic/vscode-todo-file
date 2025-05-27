@@ -141,7 +141,7 @@ export function restoreTimer(): void {
     vscode.workspace.openTextDocument(vscode.Uri.parse(stored.fileName))
       .then(doc => vscode.window.showTextDocument(doc))
       .then(() => vscode.window.showInformationMessage("⏱️ Timer completed while extension was inactive!"))
-      .catch(() => vscode.window.showInformationMessage("⏱️ Timer completed while extension was inactive!"));
+      // .catch(() => vscode.window.showInformationMessage("⏱️ Timer completed while extension was inactive!"));
     return;
   }
 
@@ -153,11 +153,11 @@ export function restoreTimer(): void {
     .then(editor => {
       startTimer(editor, stored.line, remainingMinutes);
     })
-    .catch(error => {
-      console.error('Failed to restore timer document:', error);
-      // Clear the stored timer if we can't restore it
-      extensionContext.globalState.update('activeTimer', undefined);
-    });
+    // .catch(error => {
+    //   console.error('Failed to restore timer document:', error);
+    //   // Clear the stored timer if we can't restore it
+    //   extensionContext.globalState.update('activeTimer', undefined);
+    // });
 }
 
 // Function to handle editor changes without interfering with the timer
